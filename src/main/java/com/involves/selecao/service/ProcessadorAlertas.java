@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -85,6 +86,7 @@ public class ProcessadorAlertas {
 		alerta.setPontoDeVenda(pesquisa.getPonto_de_venda());
 		alerta.setCategoria(pesquisa.getCategoria());
 		alerta.setFlTipo(getFlTipo(descricao));
+		alerta.setDataRegistro(new Date());
 		gateway.salvar(alerta);
 		return alerta;
 	}

@@ -1,5 +1,7 @@
 package com.involves.selecao.alerta;
 
+import java.util.Date;
+
 public class Alerta {
 	
 	private String pontoDeVenda;
@@ -8,6 +10,7 @@ public class Alerta {
 	private Integer flTipo;
 	private Integer margem;
 	private String categoria;
+	private Date data_registro;
 	
 	public String getPontoDeVenda() {
 		return pontoDeVenda;
@@ -44,5 +47,12 @@ public class Alerta {
 	}
 	public void setCategoria(String categoria) {
 		this.categoria = categoria;
+	}	
+	public Date getDataRegistro() {
+		return data_registro;
+	}
+	public void setDataRegistro(Date data_registro) {
+		this.data_registro = data_registro;
+		
 	}
 }

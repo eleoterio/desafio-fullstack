@@ -9,4 +9,8 @@ public interface AlertaGateway {
 	void salvar(Alerta alerta);
 
 	List<Alerta> buscarTodos();
+	
+	List<Alerta> buscarPorTipo(String valor);
+	
+	List<Alerta> buscarPorPontoDeVenda(String valor);
 }

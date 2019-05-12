@@ -12,6 +12,7 @@ import com.involves.selecao.gateway.mongo.MongoDbFactory;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 
 @Component
 public class AlertaMongoGateway implements AlertaGateway{
@@ -28,7 +29,8 @@ public class AlertaMongoGateway implements AlertaGateway{
                 .append("tipo", alerta.getFlTipo())
                 .append("margem", alerta.getMargem())
 				.append("categoria", alerta.getCategoria())
-                .append("produto", alerta.getProduto());
+                .append("produto", alerta.getProduto())
+				.append("data_registro", alerta.getDataRegistro());
 		collection.insertOne(doc);
 	}
 
@@ -39,15 +41,47 @@ public class AlertaMongoGateway implements AlertaGateway{
 		FindIterable<Document> db = collection.find();
 		List<Alerta> alertas = new ArrayList<>();
 		for (Document document : db) {
-			Alerta alerta = new Alerta();
-			alerta.setDescricao(document.getString("descricao"));
-			alerta.setFlTipo(document.getInteger("tipo"));
-			alerta.setMargem(document.getInteger("margem"));
-			alerta.setPontoDeVenda(document.getString("ponto_de_venda"));
-			alerta.setProduto(document.getString("produto"));
-			alerta.setCategoria(document.getString("categoria"));
+			Alerta alerta = setAlerta(document);
 			alertas.add(alerta);
 		}
 		return alertas;
+	}
+	
+	@Override
+	public List<Alerta> buscarPorTipo(String valor) {
+		MongoDatabase database = mongoFactory.getDb();
+		MongoCollection<Document> collection = database.getCollection("Alertas");
+		FindIterable<Document> db = collection.find(Filters.eq("tipo", Integer.parseInt(valor)));
+		List<Alerta> alertas = new ArrayList<>();
+		for (Document document : db) {
+			Alerta alerta = setAlerta(document);
+			alertas.add(alerta);
+		}
+		return alertas;
+	}
+	
+	@Override
+	public List<Alerta> buscarPorPontoDeVenda(String valor) {
+		MongoDatabase database = mongoFactory.getDb();
+		MongoCollection<Document> collection = database.getCollection("Alertas");
+		FindIterable<Document> db = collection.find(Filters.eq("ponto_de_venda", valor));
+		List<Alerta> alertas = new ArrayList<>();
+		for (Document document : db) {
+			Alerta alerta = setAlerta(document);
+			alertas.add(alerta);
+		}
+		return alertas;
+	}
+	
+	protected Alerta setAlerta(Document document) {
+		Alerta alerta = new Alerta();
+		alerta.setDescricao(document.getString("descricao"));
+		alerta.setFlTipo(document.getInteger("tipo"));
+		alerta.setMargem(document.getInteger("margem"));
+		alerta.setPontoDeVenda(document.getString("ponto_de_venda"));
+		alerta.setProduto(document.getString("produto"));
+		alerta.setCategoria(document.getString("categoria"));
+		alerta.setDataRegistro(document.getDate("data_registro"));
+		return alerta;
 	}
 }

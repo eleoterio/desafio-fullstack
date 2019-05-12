@@ -17,5 +17,13 @@ public class BuscaAlertasService {
 	public List<Alerta> buscarTodos() {
 		return gateway.buscarTodos();
 	}
+	
+	public List<Alerta> buscarPorTipo(String valor) {
+		return gateway.buscarPorTipo(valor);
+	}
+	
+	public List<Alerta> buscarPorPontoDeVenda(String valor) {
+		return gateway.buscarPorPontoDeVenda(valor);
+	}
 
 }
