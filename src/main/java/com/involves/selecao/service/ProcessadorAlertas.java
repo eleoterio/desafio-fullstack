@@ -76,7 +76,7 @@ public class ProcessadorAlertas {
                 margem = calcularMargem(pesquisa.getParticipacao_estipulada(), resposta.getResposta());
             }
             if (margem == 0) {
-                return alerta;
+                return null;
             }
             alerta.setMargem(margem);
         }
