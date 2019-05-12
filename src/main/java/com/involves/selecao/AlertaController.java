@@ -29,10 +29,10 @@ public class AlertaController {
 	
 	@GetMapping("/processar")
     public void processar() {
-		try {
-			processador.processa();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+        try {
+            processador.processa();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

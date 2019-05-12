@@ -36,71 +36,98 @@ public class ProcessadorAlertas {
 		in.close();
 
 		Gson gson = new Gson();
-		Pesquisa[] ps =  gson.fromJson(content.toString(), Pesquisa[].class);
-		for (int i = 0; i < ps.length; i++){
-			for (int j = 0; j < ps[i].getRespostas().size(); j++){
-				Resposta resposta = ps[i].getRespostas().get(j);
-				if (resposta.getPergunta().equals("Qual a situação do produto?")) {
-					if(resposta.getResposta().equals("Produto ausente na gondola")){
-					    Alerta alerta = new Alerta();
-					    alerta.setPontoDeVenda(ps[i].getPonto_de_venda());
-					    alerta.setDescricao("Ruptura detectada!");
-					    alerta.setProduto(ps[i].getProduto());
-					    alerta.setFlTipo(1);
-					    gateway.salvar(alerta);
-					}
-				} else if(resposta.getPergunta().equals("Qual o preço do produto?")) {
-					int precoColetado = Integer.parseInt(resposta.getResposta());
-					int precoEstipulado = Integer.parseInt(ps[i].getPreco_estipulado());
-					if(precoColetado > precoEstipulado){
-					    Alerta alerta = new Alerta();
-					    int margem = precoEstipulado - Integer.parseInt(resposta.getResposta());
-					    alerta.setMargem(margem);
-					    alerta.setDescricao("Preço acima do estipulado!");
-					    alerta.setProduto(ps[i].getProduto());
-					    alerta.setPontoDeVenda(ps[i].getPonto_de_venda());
-					    alerta.setFlTipo(2);
-					    gateway.salvar(alerta);
-					} else if(precoColetado < precoEstipulado){
-						Alerta alerta = new Alerta();
-					    int margem = precoEstipulado - Integer.parseInt(resposta.getResposta());
-					    alerta.setMargem(margem);
-					    alerta.setDescricao("Preço abaixo do estipulado!");
-					    alerta.setProduto(ps[i].getProduto());
-					    alerta.setPontoDeVenda(ps[i].getPonto_de_venda());
-					    alerta.setFlTipo(3);
-					    gateway.salvar(alerta);
-					}
-				} else if(resposta.getPergunta().equals("%Share")) { 
-					int participacaoColetada = Integer.parseInt(resposta.getResposta());
-					int participacaoEstipulada = Integer.parseInt(ps[i].getParticipacao_estipulada());
-					if(participacaoColetada > participacaoEstipulada){
-					    Alerta alerta = new Alerta();
-					    int margem = participacaoEstipulada - Integer.parseInt(resposta.getResposta());
-					    alerta.setMargem(margem);
-					    alerta.setDescricao("Participacao superior ao estipulado!");
-					    alerta.setProduto(ps[i].getProduto());
-					    alerta.setPontoDeVenda(ps[i].getPonto_de_venda());
-					    alerta.setFlTipo(4);
-					    alerta.setCategoria(ps[i].getCategoria);
-					    gateway.salvar(alerta);
-					} else if(participacaoColetada < participacaoEstipulada){
-						Alerta alerta = new Alerta();
-					    int margem = participacaoEstipulada - Integer.parseInt(resposta.getResposta());
-					    alerta.setMargem(margem);
-					    alerta.setDescricao("Participacao inferior ao estipulado!");
-					    alerta.setProduto(ps[i].getProduto());
-					    alerta.setPontoDeVenda(ps[i].getPonto_de_venda());
-					    alerta.setFlTipo(5);
-					    alerta.setCategoria(ps[i].getCategoria);
-					    gateway.salvar(alerta);
-					}
-				} else {
-					System.out.println("Alerta ainda não implementado!");
-				}
-				
-			} 
-		}
+        Pesquisa[] pesquisas =  gson.fromJson(content.toString(), Pesquisa[].class);
+        for (Pesquisa pesquisa : pesquisas) {
+            for (Resposta resposta : pesquisa.getRespostas()) {
+                switch (resposta.getPergunta()) {
+                    case "Qual a situação do produto?":
+                        if(resposta.getResposta().equals("Produto ausente na gondola")){
+                            salvarParticipacao(pesquisa, resposta, "Ruptura detectada!", false);
+                        }
+                        break;
+                    case "Qual o preço do produto?":
+                        if(verificarColetadoMaior(pesquisa.getPreco_estipulado(), resposta.getResposta())){
+                            salvarParticipacao(pesquisa, resposta, "Preço acima do estipulado!", true);
+                        } else {
+                            salvarParticipacao(pesquisa, resposta, "Preço abaixo do estipulado!", true);
+                        }
+                        break;
+                    case "%Share":
+                        if(verificarColetadoMaior(pesquisa.getParticipacao_estipulada(), resposta.getResposta())){
+                            salvarParticipacao(pesquisa, resposta, "Participação superior ao estipulado!", true);
+                        } else {
+                            salvarParticipacao(pesquisa, resposta, "Participação inferior ao estipulado!", true);
+                        }
+                        break;
+                    default:
+                        System.out.println("Alerta ainda não implementado!");
+                }
+            }
+        }
 	}
-}
 
+	protected Alerta salvarParticipacao(Pesquisa pesquisa, Resposta resposta, String descricao, Boolean verificar_margem) {
+        Alerta alerta = new Alerta();
+        if (verificar_margem) {
+            int margem = 0;
+            if (pesquisa.getPreco_estipulado() != null) {
+                margem = calcularMargem(pesquisa.getPreco_estipulado(), resposta.getResposta());
+            } else if (pesquisa.getParticipacao_estipulada() != null) {
+                margem = calcularMargem(pesquisa.getParticipacao_estipulada(), resposta.getResposta());
+            }
+            if (margem == 0) {
+                return alerta;
+            }
+            alerta.setMargem(margem);
+        }
+		alerta.setDescricao(descricao);
+		alerta.setProduto(pesquisa.getProduto());
+		alerta.setPontoDeVenda(pesquisa.getPonto_de_venda());
+		alerta.setCategoria(pesquisa.getCategoria());
+		alerta.setFlTipo(getFlTipo(descricao));
+		gateway.salvar(alerta);
+		return alerta;
+	}
+
+	protected int getFlTipo(String descricao_resposta) {
+        int flTipo;
+		switch (descricao_resposta) {
+			case "Ruptura detectada!":
+				flTipo =  1;
+				break;
+			case "Preço acima do estipulado!":
+				flTipo =  2;
+				break;
+			case "Preço abaixo do estipulado!":
+				flTipo =  3;
+				break;
+			case "Participação superior ao estipulado!":
+				flTipo =  4;
+				break;
+			case "Participação inferior ao estipulado!":
+				flTipo =  5;
+				break;
+			default:
+				flTipo =  0;
+	    }
+
+		return flTipo;
+    }
+
+    protected int calcularMargem(String estipulado, String coletado) {
+		int integer_coletado = Integer.parseInt(coletado);
+		int integer_estipulado = Integer.parseInt(estipulado);
+		return integer_estipulado - integer_coletado;
+    }
+    
+    protected boolean verificarColetadoMaior(String estipulado, String coletado) {
+		int integer_coletado = Integer.parseInt(coletado);
+		int integer_estipulado = Integer.parseInt(estipulado);
+        boolean coletado_maior = true;
+        if (integer_coletado < integer_estipulado) {
+            coletado_maior = false;
+        } 
+        return coletado_maior;
+	}
+	
+}
