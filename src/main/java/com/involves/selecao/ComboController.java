@@ -3,6 +3,7 @@ package com.involves.selecao;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -18,6 +19,7 @@ public class ComboController {
 	@Autowired
 	private BuscarComboPreenchido buscar_combo;
 	
+	@CrossOrigin(origins = "*")
 	@GetMapping("/tipo")
     public List<String> comboTipo() {
 		List<String> lista_combo = null;
@@ -25,6 +27,7 @@ public class ComboController {
 		return lista_combo;
 	}
 	
+	@CrossOrigin(origins = "*")
 	@GetMapping("/ponto-de-venda")
     public List<String> comboPontoDeVenda() {
 		List<String> lista_combo = null;
