@@ -73,6 +73,22 @@ public class AlertaMongoGateway implements AlertaGateway{
 		return alertas;
 	}
 	
+	@Override
+	public List<Alerta> buscarPorPontoDeVendaETipo(String ponto_de_venda, String tipo) {
+		MongoDatabase database = mongoFactory.getDb();
+		MongoCollection<Document> collection = database.getCollection("Alertas");
+		FindIterable<Document> db = collection.find(Filters.and(
+					Filters.eq("tipo", Integer.parseInt(tipo)),
+					Filters.eq("ponto_de_venda", ponto_de_venda)
+				));
+		List<Alerta> alertas = new ArrayList<>();
+		for (Document document : db) {
+			Alerta alerta = setAlerta(document);
+			alertas.add(alerta);
+		}
+		return alertas;
+	}
+	
 	protected Alerta setAlerta(Document document) {
 		Alerta alerta = new Alerta();
 		alerta.setDescricao(document.getString("descricao"));

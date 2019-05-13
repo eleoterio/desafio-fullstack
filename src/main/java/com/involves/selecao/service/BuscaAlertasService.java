@@ -25,5 +25,9 @@ public class BuscaAlertasService {
 	public List<Alerta> buscarPorPontoDeVenda(String valor) {
 		return gateway.buscarPorPontoDeVenda(valor);
 	}
+	
+	public List<Alerta> buscarPorPontoDeVendaETipo(String ponto_de_venda, String tipo) {
+		return gateway.buscarPorPontoDeVendaETipo(ponto_de_venda, tipo);
+	}
 
 }

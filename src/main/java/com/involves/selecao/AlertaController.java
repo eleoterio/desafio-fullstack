@@ -26,15 +26,19 @@ public class AlertaController {
 	@GetMapping
     public List<Alerta> alertas(
 	    		@RequestParam("pesquisa") String pesquisa, 
-	    		@RequestParam(value="valor", required=false) String valor
+	    		@RequestParam(value="tipo", required=false) String tipo,
+	    		@RequestParam(value="ponto_de_venda", required=false) String ponto_de_venda
     		) {
 		List<Alerta> lista_alerta_retorno = null;
 		switch (pesquisa) {
 			case "tipo":
-				lista_alerta_retorno = buscaAlertasService.buscarPorTipo(valor);
+				lista_alerta_retorno = buscaAlertasService.buscarPorTipo(tipo);
 				break;
 			case "local":
-				lista_alerta_retorno = buscaAlertasService.buscarPorPontoDeVenda(valor);
+				lista_alerta_retorno = buscaAlertasService.buscarPorPontoDeVenda(ponto_de_venda);
+				break;
+			case "localtipo":
+				lista_alerta_retorno = buscaAlertasService.buscarPorPontoDeVendaETipo(ponto_de_venda, tipo);
 				break;
 			case "todos":
 				lista_alerta_retorno = buscaAlertasService.buscarTodos();

@@ -86,7 +86,8 @@ public class ProcessadorAlertas {
 		alerta.setPontoDeVenda(pesquisa.getPonto_de_venda());
 		alerta.setCategoria(pesquisa.getCategoria());
 		alerta.setFlTipo(getFlTipo(descricao));
-		alerta.setDataRegistro(new Date());
+		Date date = new Date();
+		alerta.setDataRegistro(date);
 		gateway.salvar(alerta);
 		return alerta;
 	}
