@@ -29,7 +29,6 @@ public class ComboMongoGateway implements ComboGateway{
 		for (Document document : db) {
 			Integer tipo_integer = document.getInteger("tipo");
 			String tipo_string = Integer.toString(tipo_integer);
-			System.out.println(tipo_string);
 			if (!combo.contains(tipo_string)) {
 				combo.add(tipo_string);				
 			}
