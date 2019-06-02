@@ -52,7 +52,6 @@ public class Alerta {
 		return data_registro;
 	}
 	public void setDataRegistro(Date data_registro) {
-		this.data_registro = data_registro;
-		
+		this.data_registro = data_registro;		
 	}
 }
